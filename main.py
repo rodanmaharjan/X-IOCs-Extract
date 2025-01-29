@@ -1,9 +1,8 @@
-
 from helium import *
 import pickle
 import os
 from time import sleep
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dateutil import parser
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
@@ -30,17 +29,20 @@ def calculate_cutoff_time(timeframe):
     number, unit = timeframe.split()
     number = int(number)
 
+    # Get the current UTC time with timezone awareness
+    current_utc_time = datetime.now(timezone.utc)
+
     # Calculate the timedelta based on the unit (e.g., days, hours, weeks, months, years)
-    if unit == 'days' or unit == 'day' or unit == 'd':
-        return datetime.utcnow() - timedelta(days=number)
-    elif unit == 'hours' or unit == 'hour' or unit == 'h':
-        return datetime.utcnow() - timedelta(hours=number)
-    elif unit == 'weeks' or unit == 'week' or unit == 'w':
-        return datetime.utcnow() - timedelta(weeks=number)
-    elif unit == 'months' or unit == 'month' or unit == 'm':  # Approximate to 30 days per month
-        return datetime.utcnow() - timedelta(days=30 * number)
-    elif unit == 'years' or unit == 'year' or unit == 'y': # 365 days per year
-        return datetime.utcnow() - timedelta(days=365 * number)
+    if unit in ('days', 'day', 'd'):
+        return current_utc_time - timedelta(days=number)
+    elif unit in ('hours', 'hour', 'h'):
+        return current_utc_time - timedelta(hours=number)
+    elif unit in ('weeks', 'week', 'w'):
+        return current_utc_time - timedelta(weeks=number)
+    elif unit in ('months', 'month', 'm'):  # Approximate to 30 days per month
+        return current_utc_time - timedelta(days=30 * number)
+    elif unit in ('years', 'year', 'y'):  # 365 days per year
+        return current_utc_time - timedelta(days=365 * number)
     else:
         raise ValueError("Unsupported time unit")
 
