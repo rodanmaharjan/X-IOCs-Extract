@@ -48,7 +48,7 @@ def calculate_cutoff_time(timeframe):
 
 # Function to check if a tweet is within the specified timeframe
 def is_within_timeframe(tweet_time_str, cutoff_time):
-    tweet_time = parser.isoparse(tweet_time_str).replace(tzinfo=None)  # Convert to offset-naive datetime object
+    tweet_time = parser.isoparse(tweet_time_str).astimezone(timezone.utc)  # Convert to UTC timezone-aware datetime
     return tweet_time >= cutoff_time
 
 # Function to scroll and collect tweets from search results
