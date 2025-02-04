@@ -88,49 +88,51 @@ def scrape_and_collect_tweets():
     scroll_attempts = 0  # Track the number of scroll attempts
 
     while True:
-        if scroll_attempts != 0:
-            scroll_down(1000)
-        sleep(3)  # Wait for tweets to load after scrolling
+        with open("collected_tweets.txt", "a", encoding="utf-8") as file:
+            if scroll_attempts != 0:
+                scroll_down(1000)
+            sleep(3)  # Wait for tweets to load after scrolling
 
-        # Grab all tweet articles
-        tweets = find_all(S("//article[@role='article']"))
+            # Grab all tweet articles
+            tweets = find_all(S("//article[@role='article']"))
 
-        # Extract text from each tweet and store it in the list
-        if tweets:
-            for tweet in tweets:
-                
-                tweet_text = tweet.web_element.text
-                
-                try:
-                    time_element = tweet.web_element.find_element("tag name", "time")  # Get time in UTC of the tweet
-                except NoSuchElementException: #or StaleElementReferenceException:
-                    print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
-                    print("Skipped this tweet ================================>"+str(tweet_text))
-                    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-                    continue
-                tweet_time = time_element.get_attribute("datetime")
+            # Extract text from each tweet and store it in the list
+            if tweets:
+                for tweet in tweets:
+                    
+                    tweet_text = tweet.web_element.text
+                    
+                    try:
+                        time_element = tweet.web_element.find_element("tag name", "time")  # Get time in UTC of the tweet
+                    except NoSuchElementException: #or StaleElementReferenceException:
+                        print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
+                        print("Skipped this tweet ================================>"+str(tweet_text))
+                        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+                        continue
+                    tweet_time = time_element.get_attribute("datetime")
 
-                    # Check if the tweet is within the user-specified timeframe
-                if not is_within_timeframe(tweet_time, cutoff_time):
-                    print(f"Reached tweets older than {timeframe}, stopping...")
-                    print(f"Total Collected Tweets: {len(all_tweets)}")
-                    kill_browser()  # Close the browser
-                    # Save the tweets to a file
-                    with open('collected_tweets.txt', 'w', encoding='utf-8') as collected_file:
-                        for line in all_tweets:
-                            collected_file.write(line + "\n")
-                    return malware,cutoff_time# Stop scraping when reaching tweets older than the cutoff time
+                        # Check if the tweet is within the user-specified timeframe
+                    if not is_within_timeframe(tweet_time, cutoff_time):
+                        print(f"Reached tweets older than {timeframe}, stopping...")
+                        print(f"Total Collected Tweets: {len(all_tweets)}")
+                        kill_browser()  # Close the browser
+                        # Save the tweets to a file
+                        with open('collected_tweets.txt', 'w', encoding='utf-8') as collected_file:
+                            for line in all_tweets:
+                                collected_file.write(line + "\n")
+                        return malware,cutoff_time# Stop scraping when reaching tweets older than the cutoff time
 
-                # If the tweet is within the timeframe, add it to the list
-                all_tweets.append(tweet_text)
-                print(f"Tweet Time: {tweet_time}")
-                print(f"Collected Tweet:\n{tweet_text}\n")
-                
+                    # If the tweet is within the timeframe, add it to the list
+                    all_tweets.append(tweet_text)
+                    file.write(tweet_text + '\n')
+                    print(f"Tweet Time: {tweet_time}")
+                    print(f"Collected Tweet:\n{tweet_text}\n")
+                    
 
-            scroll_attempts += 1  # Increase scroll attempts after processing tweets
-        else:
-            print("No more tweets found, stopping...")
-            break
+                scroll_attempts += 1  # Increase scroll attempts after processing tweets
+            else:
+                print("No more tweets found, stopping...")
+                break
 
     # After collecting tweets, print or save the results
     print("Total Collected Tweets:", len(all_tweets))
