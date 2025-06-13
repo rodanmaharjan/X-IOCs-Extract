@@ -6,10 +6,10 @@ def main_extractor(malware_name,cutoff_time):
         collected_tweets = collected_tweets_file.read()
 
     # Refined regex for IPs (handles obfuscation [.] and full capture)
-    ip_regex = r"((?:\d{1,3}(?:\[\.\]|\.)?){3}\d{1,3})"
+    ip_regex = r"\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}"
 
     # Updated regex for full domains, handles subdomains, and multiple-level domains, including obfuscation [.]
-    domain_regex =  r"\b(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}\b"
+    domain_regex =  r"\b(?=\S*\[\.\])(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}\b"
 
     # Regex for hash extraction (SHA256)
     hash_regex = r"\b([a-fA-F0-9]{32}|[a-fA-F0-9]{40}|[a-fA-F0-9]{64})\b"
@@ -41,6 +41,8 @@ def main_extractor(malware_name,cutoff_time):
     print("Extracted Hashes:", set(hashes))
     print(len(clean_ip_extracted)+len(domains)+len(hashes))
     for i in set(clean_ip_extracted):
+        print(i)
+    for i in set(domains):
         print(i)
     for i in set(hashes):
         print(i)
