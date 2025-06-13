@@ -53,5 +53,7 @@ def main_extractor(malware_name,cutoff_time):
     with open (malware_name+'_'+from_date+'_to_'+today_date+'.txt','w') as dump:
         for i in set(clean_ip_extracted):
             dump.write(str(i)+'\n')
+        for i in set(domains):
+            dump.write(str(i) + '\n')
         for i in set(hashes):
             dump.write(str(i)+'\n')
