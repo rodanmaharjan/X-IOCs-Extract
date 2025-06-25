@@ -8,6 +8,9 @@ def main_extractor(malware_name,cutoff_time):
     # Refined regex for IPs (handles obfuscation [.] and full capture)
     ip_regex = r"\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}"
 
+    # Regex to match URLs
+    url_regex = r"\b(?:(?:https?|ftp):\/\/)?(?:[a-zA-Z0-9-]+\[\.\])+[a-zA-Z]{2,}(?:[\/\w\-?=&%]*(?:\[\.\][\/\w\-?=&%]*)*)?\b"
+
     # Updated regex for full domains, handles subdomains, and multiple-level domains, including obfuscation [.]
     domain_regex =  r"\b(?=\S*\[\.\])(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}\b"
 
@@ -18,16 +21,19 @@ def main_extractor(malware_name,cutoff_time):
         # Extract IPs
         ips = re.findall(ip_regex, text)
         
+        # Extract URLs
+        urls = re.findall(url_regex, text)
+
         # Extract domains
         domains = re.findall(domain_regex, text)
         
         # Extract hashes
         hashes = re.findall(hash_regex, text)
         
-        return ips, domains, hashes
+        return ips, domains, urls, hashes
 
     # Example processing the tweets and extracting the IOCs
-    ips, domains, hashes = extract_iocs(collected_tweets)
+    ips, domains, urls, hashes = extract_iocs(collected_tweets)
 
     # Remove obfuscation by replacing '[.]' with '.'
     ips = [ip.replace("[.]", ".") for ip in ips]
@@ -37,10 +43,13 @@ def main_extractor(malware_name,cutoff_time):
     clean_ip_regex = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
     clean_ip_extracted = [ip for ip in ips if re.match(clean_ip_regex, ip)]
     print("Extracted IPs:", set(clean_ip_extracted))
+    print("Extracted URLs:", set(urls))
     print("Extracted Domains:", set(domains))
     print("Extracted Hashes:", set(hashes))
     print(len(clean_ip_extracted)+len(domains)+len(hashes))
     for i in set(clean_ip_extracted):
+        print(i)
+    for i in set(urls):
         print(i)
     for i in set(domains):
         print(i)
@@ -54,6 +63,8 @@ def main_extractor(malware_name,cutoff_time):
         for i in set(clean_ip_extracted):
             dump.write(str(i)+'\n')
         for i in set(domains):
+            dump.write(str(i) + '\n')
+        for i in set(urls):
             dump.write(str(i) + '\n')
         for i in set(hashes):
             dump.write(str(i)+'\n')
