@@ -1,5 +1,7 @@
 import re
 from datetime import datetime
+import ioc_fanger
+
 def main_extractor(malware_name,cutoff_time):
     # Sample collected tweets
     with open ('collected_tweets.txt','r', encoding='utf-8') as collected_tweets_file:
@@ -9,7 +11,7 @@ def main_extractor(malware_name,cutoff_time):
     ip_regex = r"\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}"
 
     # Regex to match URLs
-    url_regex = r"\b(?:(?:https?|ftp):\/\/)?(?:[a-zA-Z0-9-]+|\d{1,3})(?:\[\.\](?:[a-zA-Z0-9-]+|\d{1,3})){1,}(?:\/[^\s]*)?\b"
+    url_regex = r"\b(?=\S*\[\.\])(?:(?:https?|ftp|hxxp|hxxps)(?::\/\/|\[:\]\/\/|\[://\]))?(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}(?:\/[^\s]*)?\b"
 
     # Updated regex for full domains, handles subdomains, and multiple-level domains, including obfuscation [.]
     domain_regex =  r"\b(?=\S*\[\.\])(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}\b"
@@ -20,7 +22,7 @@ def main_extractor(malware_name,cutoff_time):
     def extract_iocs(text):
         # Extract IPs
         ips = re.findall(ip_regex, text)
-        
+
         # Extract URLs
         urls = re.findall(url_regex, text)
 
@@ -36,8 +38,9 @@ def main_extractor(malware_name,cutoff_time):
     ips, domains, urls, hashes = extract_iocs(collected_tweets)
 
     # Remove obfuscation by replacing '[.]' with '.'
-    ips = [ip.replace("[.]", ".") for ip in ips]
-    domains = [domain.replace("[.]", ".") for domain in domains]
+    ips = [ioc_fanger.fang(ip) for ip in ips]
+    urls = [ioc_fanger.fang(url) for url in urls]
+    domains = [ioc_fanger.fang(domain) for domain in domains]
 
     # Printing the extracted IOCs
     clean_ip_regex = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
