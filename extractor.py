@@ -11,7 +11,7 @@ def main_extractor(malware_name,cutoff_time):
     ip_regex = r"\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}(?:\[\.\]|\.)\d{1,3}"
 
     # Regex to match URLs
-    url_regex = r"\b(?=\S*\[\.\])(?:https?|ftp|hxxp|hxxps)(?::\/\/|\[:\]\/\/|\[:\/\/\])?(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}(?:\/[^\s]*)?\b"
+    url_regex = r"\b(?=\S*\[\.\])(?:(?:https?|ftp|hxxp|hxxps)(?::\/\/|\[:\]\/\/|\[://\]))?(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}(?:\/[^\s]*)?\b"
 
     # Updated regex for full domains, handles subdomains, and multiple-level domains, including obfuscation [.]
     domain_regex =  r"\b(?=\S*\[\.\])(?:[a-zA-Z0-9-]+\[?\.\]?)+[a-zA-Z]{2,}\b"
